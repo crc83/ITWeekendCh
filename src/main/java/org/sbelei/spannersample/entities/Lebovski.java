@@ -2,8 +2,10 @@ package org.sbelei.spannersample.entities;
 
 import lombok.Data;
 import org.springframework.cloud.gcp.data.spanner.core.mapping.Column;
+import org.springframework.cloud.gcp.data.spanner.core.mapping.NotMapped;
 import org.springframework.cloud.gcp.data.spanner.core.mapping.PrimaryKey;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -15,5 +17,6 @@ public class Lebovski {
 
     private String quote;
 
-    private LebovskiActor actor;
+    private int actorId;
+
 }

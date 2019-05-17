@@ -98,10 +98,10 @@ public class SpannerITWeekendApp {
 			actor.setId(i);
 			actor.setName(f.lebowski().actor());
 
-			lebovski.setActor(actor);
+			lebovski.setActorId(actor.getId());
 
 			lebovskiActorRepository.save(actor);
-			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + lebovski.getActor().getName());
+			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + actor.getName());
 			lebovskiRepository.save(lebovski);
 		}
 	}
