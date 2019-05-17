@@ -17,10 +17,16 @@
 package org.sbelei.spannersample;
 
 import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
+import com.github.javafaker.Faker;
+import com.github.javafaker.Lebowski;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sbelei.spannersample.entities.Lebovski;
+import org.sbelei.spannersample.repos.LebovskiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -45,6 +51,14 @@ public class SpannerITWeekendApp {
 	@Autowired
 	private SpannerDatabaseAdminTemplate spannerDatabaseAdminTemplate;
 
+	@Autowired
+	private SpannerSchemaUtils spannerSchemaUtils;
+
+	@Autowired
+	private LebovskiRepository lebovskiRepository;
+
+	private Faker f = new Faker();
+
 	public static void main(String[] args) {
 		System.out.println(Arrays.toString(args));
 		SpringApplication.run(SpannerITWeekendApp.class, args);
@@ -54,7 +68,26 @@ public class SpannerITWeekendApp {
 	@Profile("!test")
 	ApplicationRunner applicationRunner() {
 		return (args) -> {
-
+			createTable("LEBOVSKI", Lebovski.class);
+			fillWithLebovskiQuotas();
 		};
+	}
+
+	private void createTable(String tableName, Class entityClass) {
+		if (!this.spannerDatabaseAdminTemplate.tableExists(tableName)) {
+			this.spannerDatabaseAdminTemplate.executeDdlStrings(
+					Arrays.asList(this.spannerSchemaUtils.getCreateTableDdlString(entityClass)), false
+			);
+		}
+	}
+
+	private void fillWithLebovskiQuotas() {
+		for (int i = 0; i <= 100; i++) {
+			Lebovski lebovski = new Lebovski();
+			lebovski.setId(UUID.randomUUID());
+			lebovski.setQuote(f.lebowski().quote());
+			System.out.println(lebovski.getId() + " " +lebovski.getQuote() );
+			lebovskiRepository.save(lebovski);
+		}
 	}
 }

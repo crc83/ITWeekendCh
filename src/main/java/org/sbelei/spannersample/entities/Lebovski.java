@@ -1,4 +1,4 @@
-package org.sbelei.spannersample.repos;
+package org.sbelei.spannersample.entities;
 
 import lombok.Data;
 
