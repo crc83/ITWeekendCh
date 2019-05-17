@@ -68,17 +68,18 @@ public class SpannerITWeekendApp {
 	@Profile("!test")
 	ApplicationRunner applicationRunner() {
 		return (args) -> {
-			createTable("LEBOVSKI", Lebovski.class);
+			reCreateTable("LEBOVSKI", Lebovski.class);
 			fillWithLebovskiQuotas();
 		};
 	}
 
-	private void createTable(String tableName, Class entityClass) {
-		if (!this.spannerDatabaseAdminTemplate.tableExists(tableName)) {
-			this.spannerDatabaseAdminTemplate.executeDdlStrings(
-					Arrays.asList(this.spannerSchemaUtils.getCreateTableDdlString(entityClass)), false
-			);
-		}
+	private void reCreateTable(String tableName, Class entityClass) {
+		this.spannerDatabaseAdminTemplate.executeDdlStrings(
+				Arrays.asList(this.spannerSchemaUtils.getDropTableDdlString(entityClass)), false
+		);
+		this.spannerDatabaseAdminTemplate.executeDdlStrings(
+				Arrays.asList(this.spannerSchemaUtils.getCreateTableDdlString(entityClass)), false
+		);
 	}
 
 	private void fillWithLebovskiQuotas() {
