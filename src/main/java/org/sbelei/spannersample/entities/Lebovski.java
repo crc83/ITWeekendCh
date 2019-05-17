@@ -14,4 +14,6 @@ public class Lebovski {
     private UUID id;
 
     private String quote;
+
+    private LebovskiActor actor;
 }

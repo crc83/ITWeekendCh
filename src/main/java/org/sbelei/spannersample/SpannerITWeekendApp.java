@@ -26,6 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sbelei.spannersample.entities.Lebovski;
+import org.sbelei.spannersample.entities.LebovskiActor;
+import org.sbelei.spannersample.repos.LebovskiActorRepository;
 import org.sbelei.spannersample.repos.LebovskiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -57,6 +59,9 @@ public class SpannerITWeekendApp {
 	@Autowired
 	private LebovskiRepository lebovskiRepository;
 
+	@Autowired
+	private LebovskiActorRepository lebovskiActorRepository;
+
 	private Faker f = new Faker();
 
 	public static void main(String[] args) {
@@ -69,6 +74,7 @@ public class SpannerITWeekendApp {
 	ApplicationRunner applicationRunner() {
 		return (args) -> {
 			reCreateTable("LEBOVSKI", Lebovski.class);
+			reCreateTable("LEBOVSKIActor", LebovskiActor.class);
 			fillWithLebovskiQuotas();
 		};
 	}
@@ -87,7 +93,15 @@ public class SpannerITWeekendApp {
 			Lebovski lebovski = new Lebovski();
 			lebovski.setId(UUID.randomUUID());
 			lebovski.setQuote(f.lebowski().quote());
-			System.out.println(lebovski.getId() + " " +lebovski.getQuote() );
+
+			LebovskiActor actor = new LebovskiActor();
+			actor.setId(i);
+			actor.setName(f.lebowski().actor());
+
+			lebovski.setActor(actor);
+
+			lebovskiActorRepository.save(actor);
+			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + lebovski.getActor().getName());
 			lebovskiRepository.save(lebovski);
 		}
 	}
