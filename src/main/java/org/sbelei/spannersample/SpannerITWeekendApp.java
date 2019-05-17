@@ -25,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gcp.data.spanner.core.admin.SpannerDatabaseAdminTemplate;
+import org.springframework.cloud.gcp.data.spanner.core.admin.SpannerSchemaUtils;
+import org.springframework.cloud.gcp.data.spanner.repository.config.EnableSpannerRepositories;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
@@ -34,40 +37,24 @@ import org.springframework.context.annotation.Profile;
  * @author Daniel Zou
  */
 @SpringBootApplication
-public class SpannerExampleDriver {
+@EnableSpannerRepositories(value = "org.sbelei.spannersample.repos")
+public class SpannerITWeekendApp {
 
-	private static final Log LOGGER = LogFactory.getLog(SpannerExampleDriver.class);
-
-	@Autowired
-	private SpannerRepositoryExample spannerRepositoryExample;
+	private static final Log LOGGER = LogFactory.getLog(SpannerITWeekendApp.class);
 
 	@Autowired
-	private SpannerTemplateExample spannerTemplateExample;
+	private SpannerDatabaseAdminTemplate spannerDatabaseAdminTemplate;
 
 	public static void main(String[] args) {
 		System.out.println(Arrays.toString(args));
-		SpringApplication.run(SpannerExampleDriver.class, args);
+		SpringApplication.run(SpannerITWeekendApp.class, args);
 	}
 
 	@Bean
 	@Profile("!test")
 	ApplicationRunner applicationRunner() {
 		return (args) -> {
-			if (!args.containsOption("spanner_repository") && !args.containsOption("spanner_template")) {
-				throw new IllegalArgumentException("To run the Spanner example, please specify "
-						+ " -Dspring-boot.run.arguments=--spanner_repository to run the Spanner repository"
-						+ " example or -Dspring-boot.run.arguments=--spanner_template to"
-						+ " run the Spanner template example.");
-			}
 
-			if (args.containsOption("spanner_repository")) {
-				LOGGER.info("Running the Spanner Repository Example.");
-				this.spannerRepositoryExample.runExample();
-			}
-			else if (args.containsOption("spanner_template")) {
-				LOGGER.info("Running the Spanner Template Example.");
-				this.spannerTemplateExample.runExample();
-			}
 		};
 	}
 }
