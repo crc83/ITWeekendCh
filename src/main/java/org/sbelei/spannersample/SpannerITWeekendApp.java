@@ -27,7 +27,10 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sbelei.spannersample.entities.Lebovski;
 import org.sbelei.spannersample.entities.LebovskiActor;
+import org.sbelei.spannersample.entities.embedded.LebovskiActorEmb;
+import org.sbelei.spannersample.entities.embedded.LebovskiEmb;
 import org.sbelei.spannersample.repos.LebovskiActorRepository;
+import org.sbelei.spannersample.repos.LebovskiEmbRepository;
 import org.sbelei.spannersample.repos.LebovskiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -62,6 +65,9 @@ public class SpannerITWeekendApp {
 	@Autowired
 	private LebovskiActorRepository lebovskiActorRepository;
 
+	@Autowired
+	private LebovskiEmbRepository lebovskiEmbRepository;
+
 	private Faker f = new Faker();
 
 	public static void main(String[] args) {
@@ -75,7 +81,10 @@ public class SpannerITWeekendApp {
 		return (args) -> {
 			reCreateTable("LEBOVSKI", Lebovski.class);
 			reCreateTable("LEBOVSKIActor", LebovskiActor.class);
+			reCreateTable("LEBOVSKIEMB", LebovskiEmb.class);
+
 			fillWithLebovskiQuotas();
+			fillWithLebovskiEmbQuotas();
 		};
 	}
 
@@ -103,6 +112,23 @@ public class SpannerITWeekendApp {
 			lebovskiActorRepository.save(actor);
 			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + actor.getName());
 			lebovskiRepository.save(lebovski);
+		}
+	}
+
+	private void fillWithLebovskiEmbQuotas() {
+		for (int i = 0; i <= 100; i++) {
+			LebovskiEmb lebovski = new LebovskiEmb();
+			lebovski.setId(UUID.randomUUID());
+			lebovski.setQuote(f.lebowski().quote());
+
+			LebovskiActorEmb actor = new LebovskiActorEmb();
+			actor.setNumber(i);
+			actor.setName(f.lebowski().actor());
+
+			lebovski.setActor(actor);
+
+			lebovskiEmbRepository.save(lebovski);
+			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + lebovski.getActor().getName());
 		}
 	}
 }
