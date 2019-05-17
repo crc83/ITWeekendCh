@@ -29,8 +29,11 @@ import org.sbelei.spannersample.entities.Lebovski;
 import org.sbelei.spannersample.entities.LebovskiActor;
 import org.sbelei.spannersample.entities.embedded.LebovskiActorEmb;
 import org.sbelei.spannersample.entities.embedded.LebovskiEmb;
+import org.sbelei.spannersample.entities.interleaved.LebovskiActorIl;
+import org.sbelei.spannersample.entities.interleaved.LebovskiIl;
 import org.sbelei.spannersample.repos.LebovskiActorRepository;
 import org.sbelei.spannersample.repos.LebovskiEmbRepository;
+import org.sbelei.spannersample.repos.LebovskiIlRepository;
 import org.sbelei.spannersample.repos.LebovskiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -68,6 +71,9 @@ public class SpannerITWeekendApp {
 	@Autowired
 	private LebovskiEmbRepository lebovskiEmbRepository;
 
+	@Autowired
+	private LebovskiIlRepository lebovskiIlRepository;
+
 	private Faker f = new Faker();
 
 	public static void main(String[] args) {
@@ -82,10 +88,21 @@ public class SpannerITWeekendApp {
 			reCreateTable("LEBOVSKI", Lebovski.class);
 			reCreateTable("LEBOVSKIActor", LebovskiActor.class);
 			reCreateTable("LEBOVSKIEMB", LebovskiEmb.class);
-
+			reCreateTableForInterleavedHierarchy(LebovskiIl.class);
+			reCreateTableForInterleavedHierarchy(LebovskiActorIl.class);
 			fillWithLebovskiQuotas();
 			fillWithLebovskiEmbQuotas();
+			fillWithLebovskiIlQuotas();
 		};
+	}
+
+	private void reCreateTableForInterleavedHierarchy(Class entityClass) {
+		this.spannerDatabaseAdminTemplate.executeDdlStrings(
+				this.spannerSchemaUtils.getDropTableDdlStringsForInterleavedHierarchy(entityClass), false
+		);
+		this.spannerDatabaseAdminTemplate.executeDdlStrings(
+				this.spannerSchemaUtils.getCreateTableDdlStringsForInterleavedHierarchy(entityClass), false
+		);
 	}
 
 	private void reCreateTable(String tableName, Class entityClass) {
@@ -129,6 +146,24 @@ public class SpannerITWeekendApp {
 
 			lebovskiEmbRepository.save(lebovski);
 			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + lebovski.getActor().getName());
+		}
+	}
+
+	private void fillWithLebovskiIlQuotas() {
+		for (int i = 0; i <= 100; i++) {
+			LebovskiIl lebovski = new LebovskiIl();
+			lebovski.setId(UUID.randomUUID());
+			lebovski.setQuote(f.lebowski().quote());
+
+			LebovskiActorIl actor = new LebovskiActorIl();
+			actor.setId(lebovski.getId());
+			actor.setNumber(i);
+			actor.setName(f.lebowski().actor());
+
+			lebovski.setActor(Arrays.asList(actor));
+
+			lebovskiIlRepository.save(lebovski);
+			System.out.println(lebovski.getId() + " " +lebovski.getQuote() + " " + lebovski.getActor().get(0).getName());
 		}
 	}
 }
